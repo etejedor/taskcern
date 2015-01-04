@@ -32,7 +32,10 @@ void TaskManager::addTask(void (*f)(void*), void* params) {
 }
 
 void TaskManager::wait() {
+	std::cout << "WAITING\n";
 	data->parent->wait_for_all();
+	data->parent->increment_ref_count();
+	std::cout << "End of WAIT\n";
 }
 
 //

@@ -7,7 +7,7 @@
 
 void hello(char* s, int i) {
 	printf("Hello %s, number %d\n", s, i);
-	sleep(5);
+	sleep(1);
 }
 
 // WRAPPERS
@@ -25,11 +25,27 @@ void hello_task(void* params) {
 
 // MAIN
 
+
 int main(int argc, char* argv) {
     cern_init();
 
-    struct hello_params hp = { "World", 1 };
-    cern_add_task(&hello_task, &hp);
+    int i;
+    int count = 10;
+    struct hello_params hp[count];
+    for (i = 0; i < count; i++) {
+    	hp[i].s = "World";
+    	hp[i].i = i;
+    	cern_add_task(&hello_task, &hp[i]);
+    }
+
+    cern_wait();
+
+    struct hello_params hp2[count];
+    for (i = 0; i < count; i++) {
+        	hp2[i].s = "World";
+        	hp2[i].i = i;
+        	cern_add_task(&hello_task, &hp2[i]);
+        }
 
     cern_wait();
 

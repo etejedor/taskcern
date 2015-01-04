@@ -8,6 +8,8 @@
 #ifndef MANAGER_TASKDATA_
 #define MANAGER_TASKDATA_
 
+#include <iostream>
+
 #include "tbb/task.h"
 #include "taskmanager.h"
 
@@ -23,7 +25,10 @@ public:
 		parent->increment_ref_count();
 	}
 	~TaskManagerData() {
+		std::cout << "Destroying\n";
+		parent->set_ref_count(0);
 		parent->destroy(*parent);
+		std::cout << "Destroyed\n";
 	}
 };
 
