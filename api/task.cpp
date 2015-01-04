@@ -21,14 +21,14 @@ void cern_init() {
 		mng = new TaskManager();
 }
 
-void cern_addTask() {
-	mng->addTask();
+void cern_add_task(void (*f)(void*), void* params) {
+	mng->addTask(f, params);
 }
 
 void cern_wait() {
 	mng->wait();
 }
 
-void cern_finalize() {
+void cern_end() {
 	delete mng;
 }

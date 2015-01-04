@@ -13,16 +13,16 @@
 
 namespace cern_parallel {
 
-class TaskData {
+class TaskManagerData {
 friend class TaskManager;
 private:
 	tbb::task* parent;
 public:
-	TaskData() {
+	TaskManagerData() {
 		parent = new( tbb::task::allocate_root() ) tbb::empty_task;
 		parent->increment_ref_count();
 	}
-	~TaskData() {
+	~TaskManagerData() {
 		parent->destroy(*parent);
 	}
 };
@@ -30,9 +30,10 @@ public:
 
 class Task : public tbb::task {
 private:
-	void hello();
+	void (*f)(void*);
+	void* params;
 public:
-	Task() : tbb::task() { }
+	Task(void (*fun)(void*), void* p) : f(fun), params(p), tbb::task() { }
 	tbb::task* execute();
 };
 

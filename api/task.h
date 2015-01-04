@@ -13,9 +13,9 @@ extern "C" {
 #endif
 
 void cern_init();
-void cern_addTask();
+void cern_add_task(void (*)(void*), void*);
 void cern_wait();
-void cern_finalize();
+void cern_end();
 
 #ifdef __cplusplus
 }

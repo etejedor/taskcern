@@ -15,18 +15,20 @@
 using namespace cern_parallel;
 
 TaskManager::TaskManager() {
-	data = new TaskData();
+	data = new TaskManagerData();
 }
 
 TaskManager::~TaskManager() {
 	delete data;
 }
 
-void TaskManager::addTask() {
-	tbb::task& tk = *new( data->parent->allocate_child() ) Task;
+void TaskManager::addTask(void (*f)(void*), void* params) {
+	tbb::task& tk = *new( data->parent->allocate_child() ) Task(f, params);
 	data->parent->increment_ref_count();
+
 	data->parent->spawn(tk);
-	std::cout << "Added\n";
+
+	std::cout << "Spawned\n";
 }
 
 void TaskManager::wait() {

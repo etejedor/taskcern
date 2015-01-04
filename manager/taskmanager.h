@@ -11,17 +11,16 @@
 
 namespace cern_parallel {
 
-class TaskData;
+class TaskManagerData;
 
 class TaskManager {
 private:
-	TaskData* data;
+	TaskManagerData* data;
 public:
 	TaskManager();
 	~TaskManager();
-	void addTask();
+	void addTask(void (*)(void*), void*);
 	void wait();
-
 };
 
 }

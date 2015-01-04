@@ -11,12 +11,8 @@
 using namespace cern_parallel;
 
 tbb::task* Task::execute() {
-	hello();
-	std::cout << "Exiting task\n";
+	std::cout << "TASK begin\n";
+	(*f)(params);
+	std::cout << "TASK end\n";
 	return NULL;
-}
-
-void Task::hello() {
-	std::cout << "HAllo\n";
-	sleep(5);
 }
