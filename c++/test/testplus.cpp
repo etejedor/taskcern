@@ -10,7 +10,7 @@ void hello(const char* s, int i) {
 	st << "Hello " << s << ", number " << i << std::endl;
 	std::cout << st.str();
 
-	sleep(2);
+	sleep(1);
 }
 
 
@@ -19,12 +19,19 @@ using namespace cern_parallel;
 int main() {
     TaskManager tm;
 
-    tm.add_task([=]{ hello("World", 1); });
+    for (int i = 0; i < 10; i++) {
+    	tm.add_task([=]{ hello("World", i); });
+    }
 
+    tm.wait();
+
+    for (int i = 0; i < 10; i++) {
+        tm.add_task([=]{ hello("World", i); });
+    }
     tm.wait();
 }
 
 
 
 // TODO: fer exemple amb functor (mirar sudoku.cpp)
-// TODO: fer parallel_for
+// TODO: fer parallel_for (es pot fer alhora amb tasques normals?
