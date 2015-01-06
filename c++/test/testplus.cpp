@@ -13,25 +13,35 @@ void hello(const char* s, int i) {
 	sleep(1);
 }
 
+class HelloFunctor {
+    const char* s;
+    int i;
+public:
+    HelloFunctor(const char* ss, int ii) : s(ss), i(ii) {}
+    void operator()() const {
+    	hello(s, i);
+    }
+};
+
 
 using namespace cern_parallel;
 
 int main() {
     TaskManager tm;
 
+    // Lambda expression
     for (int i = 0; i < 10; i++) {
     	tm.add_task([=]{ hello("World", i); });
     }
-
     tm.wait();
 
+    // Functor
     for (int i = 0; i < 10; i++) {
-        tm.add_task([=]{ hello("World", i); });
+        tm.add_task(HelloFunctor("World", i));
     }
     tm.wait();
+
 }
 
 
-
-// TODO: fer exemple amb functor (mirar sudoku.cpp)
 // TODO: fer parallel_for (es pot fer alhora amb tasques normals?
