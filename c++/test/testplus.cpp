@@ -5,6 +5,7 @@
 
 #include "taskplus.h"
 
+
 void hello(const char* s, int i) {
 	std::stringstream st;
 	st << "Hello " << s << ", number " << i << std::endl;
@@ -31,17 +32,16 @@ int main() {
 
     // Lambda expression
     for (int i = 0; i < 10; i++) {
-    	tm.add_task([=]{ hello("World", i); });
+    	tm.add_task([=]{ hello("Lambda", i); });
     }
     tm.wait();
 
     // Functor
     for (int i = 0; i < 10; i++) {
-        tm.add_task(HelloFunctor("World", i));
+        tm.add_task(HelloFunctor("Functor", i));
     }
     tm.wait();
 
+    // Parallel for
+    tm.parallel_for(0, 10, [=](int i){ hello("Parallel_for", i); });
 }
-
-
-// TODO: fer parallel_for (es pot fer alhora amb tasques normals?

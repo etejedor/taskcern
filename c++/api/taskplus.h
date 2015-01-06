@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "tbb/task_group.h"
+#include "tbb/parallel_for.h"
 
 namespace cern_parallel {
 
@@ -25,6 +26,11 @@ public:
 	void add_task(const F& f) {
 		g.run(f);
 		std::cout << "Spawned" << std::endl;
+	}
+
+	template <typename Index, typename Function>
+	void parallel_for(Index first, Index last, const Function& f) {
+	    tbb::parallel_for(first, last, f);
 	}
 
 	void wait();
