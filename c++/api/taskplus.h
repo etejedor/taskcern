@@ -25,12 +25,17 @@ public:
 	template<typename F>
 	void add_task(const F& f) {
 		g.run(f);
-		std::cout << "Spawned" << std::endl;
+		//std::cout << "Spawned" << std::endl;
 	}
 
 	template <typename Index, typename Function>
 	void parallel_for(Index first, Index last, const Function& f) {
 	    tbb::parallel_for(first, last, f);
+	}
+
+	template <typename Index, typename Function>
+	void parallel_for(Index first, Index last, Index step, const Function& f) {
+		tbb::parallel_for(first, last, step, f);
 	}
 
 	void wait();
