@@ -11,7 +11,7 @@
 using namespace cern_parallel;
 
 void TaskManager::wait() {
-	std::cout << "WAITING\n";
+	//std::cout << "WAITING\n";
 	g.wait();
-	std::cout << "End of WAIT\n";
+	//std::cout << "End of WAIT\n";
 }

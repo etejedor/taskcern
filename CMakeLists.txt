@@ -4,3 +4,5 @@ project(TBB)
 add_subdirectory(manager)
 add_subdirectory(api)
 add_subdirectory(test)
+
+add_subdirectory(c++)
