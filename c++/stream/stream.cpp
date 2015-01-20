@@ -61,7 +61,7 @@
 # define MAX(x,y) ((x)>(y)?(x):(y))
 #endif
 
-#define N      40*1024*1024
+#define N      80*1024*1024
 #define NTIMES 10
 #define BSIZE N/16
 

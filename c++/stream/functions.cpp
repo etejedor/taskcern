@@ -45,9 +45,13 @@
 /*-----------------------------------------------------------------------*/
 
 
+#include <stdio.h>
+#include <sys/time.h>
+
+
 void init(double *a, double *b, double *c, int size)
 {
-	int j;	
+	int j;
 	for (j=0; j < size; j++){
 	        a[j] = 1.0;
 	        b[j] = 2.0;
@@ -81,9 +85,14 @@ void add (double *a, double *b, double *c, int size)
 
 void triad (double *a, double *b, double *c, double scalar, int size)
 {
+    struct timeval      stop, start;
+    double total_time;
+
+	gettimeofday(&start, NULL);
 	int j;	
 	for (j=0; j < size; j++)
             a[j] = b[j]+scalar*c[j];
-
+	gettimeofday(&stop, NULL);
+	total_time = (double)(stop.tv_sec - start.tv_sec) + (stop.tv_usec - start.tv_usec)*1.0E-06;
+	printf("TRIAD time =  %11.4f seconds\n", total_time);
 }
-

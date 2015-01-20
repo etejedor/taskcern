@@ -63,7 +63,7 @@
 # define MAX(x,y) ((x)>(y)?(x):(y))
 #endif
 
-#define N      40*1024*1024
+#define N      80*1024*1024
 #define NTIMES 10
 #define BSIZE N/16
 
@@ -73,7 +73,7 @@ int nTimes = NTIMES;
 #define BYTES  (10 * sizeof(double) * N)
 
 void checkSTREAMresults();
-int process_command_line(int argc, char **argv, int *noFlush, int *iterations);
+int process_command_line(int argc, char **argv, int *iterations, int* threads);
 
 /* Host functions */
 void init(double *a, double *b, double *c, int size);
@@ -90,12 +90,14 @@ int main(int argc, char *argv[])
     register int	j, k;
     double		scalar, total_time;
     int                 noFlush = 0;
+    int threads = 1;
     struct timeval      stop, start;
-    TaskManager tm;
 
     /* --- SETUP --- determine precision and check timing --- */
 
-    process_command_line(argc, argv, &noFlush, &nTimes);
+    process_command_line(argc, argv, &nTimes, &threads);
+    printf("Using %d THREADS\n", threads);
+    TaskManager tm(threads);
 
     printf(HLINE);
     
@@ -115,6 +117,7 @@ int main(int argc, char *argv[])
        tm.add_task([=]{ init(&a[j],&b[j],&c[j], BSIZE); });
     tm.wait();
 
+
     /*	--- MAIN LOOP --- repeat test cases nTimes times --- */
 
     // assuming N % BSIZE == 0
@@ -131,12 +134,36 @@ int main(int argc, char *argv[])
         for (j = 0; j < N; j+= BSIZE)
         	tm.add_task([=]{ add(&a[j], &b[j], &c[j], BSIZE); });
         tm.wait();
-        
+
         for (j = 0; j < N; j+= BSIZE)
         	tm.add_task([=]{ triad(&a[j], &b[j], &c[j], scalar, BSIZE); });
         tm.wait();
     }
 
+/*    for (k=0; k<nTimes; k++) {
+            for (j = 0; j < N; j+= BSIZE)
+            	tm.add_task([=]{ copy(&a[j], &c[j], BSIZE); });
+            tm.wait();
+
+            for (j = 0; j < N; j+= BSIZE)
+            	tm.add_task([=]{ scale(&b[j], &c[j], scalar, BSIZE); });
+            tm.wait();
+
+            for (j = 0; j < N; j+= BSIZE)
+            	tm.add_task([=]{ add(&a[j], &b[j], &c[j], BSIZE); });
+            tm.wait();
+
+            int i = 1;
+            for (j = 0; j < N; j+= N/2) {
+                	tm.add_task([=]{
+                		for (int k = j; k < (N/2)*i; k+=BSIZE)
+                			triad(&a[k],&b[k],&c[k], scalar, BSIZE);
+                	});
+                    i++;
+            }
+            tm.wait();
+        }
+*/
     gettimeofday(&stop, NULL);
 
     total_time = (double)(stop.tv_sec - start.tv_sec) + (stop.tv_usec - start.tv_usec)*1.0E-06;
@@ -220,7 +247,7 @@ void checkSTREAMresults ()
 	}
 }
 
-int process_command_line(int argc, char **argv, int *noFlush, int *iterations)
+int process_command_line(int argc, char **argv, int *iterations, int *threads)
 {
     int opt;
 
@@ -228,12 +255,12 @@ int process_command_line(int argc, char **argv, int *noFlush, int *iterations)
         int option_index = 0;
         static struct option long_options[] = {
             {"help", 0, NULL, 'h'},
-            {"noflush", 0, NULL, 'n'},
-            {"iterations", 1, NULL, 'i'},
+            {"threads", 0, NULL, 't'},
+            {"iterations", 0, NULL, 'i'},
             {NULL, 0, NULL, 0}
         };
 
-        opt = getopt_long(argc, argv, "hni:", long_options, &option_index);
+        opt = getopt_long(argc, argv, "ht:i:", long_options, &option_index);
 
         if (opt == -1) {
             break;
@@ -242,20 +269,19 @@ int process_command_line(int argc, char **argv, int *noFlush, int *iterations)
         switch (opt) {
         case 'h':
         case '?':
-            printf("Usage: %s [--help] [--noflush|-n] [--iterations|-i NUM_ITERATIONS]\n", argv[0]);
+            printf("Usage: %s [--help] [--threads|-t NUM_THREADS] [--iterations|-i NUM_ITERATIONS]\n", argv[0]);
             printf("\n");
             printf("Options:\n");
-            printf("Options:\n");
-            printf("--noflush,-n             Do not copy GPU data to main memory at the end of computation\n", argv[0]);
+            printf("--threads,-t             Use N threads\n", argv[0]);
             printf("--iterations,-i N        Run N iterations\n", argv[0]);
             printf("\n");
             exit(EXIT_SUCCESS);
             break;
-        case 'n':
-            *noFlush = 1;
+        case 't':
+        	*threads = strtoul(optarg, 0, 0);
             break;
         case 'i':
-            *iterations = strtoul(optarg, 0, 0);
+        	*iterations = strtoul(optarg, 0, 0);
             break;
         default:
             return 1;
